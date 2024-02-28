@@ -1,0 +1,47 @@
+import numpy as np
+
+def hungarian_algorithm(cost_matrix):
+    """
+    Solves the assignment problem using the Hungarian algorithm.
+
+    Parameters:
+        cost_matrix (numpy.ndarray): The cost matrix representing the costs of assigning tasks to workers.
+
+    Returns:
+        numpy.ndarray: An array where each element represents the column index of the assigned task for each worker.
+    """
+    # Step 1: Subtract the minimum value of each row from all elements in that row
+    for i in range(len(cost_matrix)):
+        min_val = min(cost_matrix[i])
+        cost_matrix[i] -= min_val
+
+    # Step 2: Subtract the minimum value of each column from all elements in that column
+    for j in range(len(cost_matrix[0])):
+        min_val = min(cost_matrix[:, j])
+        cost_matrix[:, j] -= min_val
+
+    # Step 3: Cover all zeros in the matrix with the minimum number of lines
+    covered_rows = set()
+    covered_cols = set()
+    while len(covered_rows) + len(covered_cols) < len(cost_matrix):
+        zeros = np.argwhere(cost_matrix == 0)
+        for row, col in zeros:
+            if row not in covered_rows and col not in covered_cols:
+                covered_rows.add(row)
+                covered_cols.add(col)
+                break
+        else:
+            uncovered_rows = set(range(len(cost_matrix))) - covered_rows
+            uncovered_cols = set(range(len(cost_matrix[0]))) - covered_cols
+            min_val = float('inf')
+            for i in uncovered_rows:
+                for j in uncovered_cols:
+                    if cost_matrix[i, j] < min_val:
+                        min_val = cost_matrix[i, j]
+            for i in uncovered_rows:
+                cost_matrix[i] -= min_val
+            for j in covered_cols:
+                cost_matrix[:, j] += min_val
+
+    # Step 4: Find the minimum number of lines to cover all zeros
+    zeros
